@@ -1,0 +1,1343 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>School Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'sys-bg': '#f1f5f9',
+              'sys-sidebar': '#0f172a',
+              'sys-text': '#1e293b',
+              'sys-muted': '#64748b',
+              'sys-accent': '#3b82f6',
+              'sys-border': '#e2e8f0',
+              'sys-success': '#10b981',
+              'sys-warning': '#f59e0b'
+            }
+          }
+        }
+      }
+    </script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .hidden-sys {
+        display: none !important;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      /* scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body class="bg-sys-bg text-sys-text font-sans min-h-screen flex">
+    <div
+      id="toast-container"
+      class="fixed top-4 right-4 z-[999] flex flex-col gap-2 pointer-events-none"
+    ></div>
+    <div
+      id="loader"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[998] flex items-center justify-center hidden-sys"
+    >
+      <div
+        class="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"
+      ></div>
+    </div>
+
+    <!-- Login -->
+    <div
+      id="view-login"
+      class="min-h-screen flex items-center justify-center bg-slate-900 p-4"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-8">
+        <div class="text-center mb-6">
+          <i class="fa-solid fa-school text-4xl text-blue-600 mb-3"></i>
+          <h1 class="text-2xl font-bold text-slate-800">Admin Login</h1>
+        </div>
+        <form id="form-login" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Admin Email</label>
+            <input
+              type="email"
+              id="login-email"
+              class="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Password</label>
+            <input
+              type="password"
+              id="login-password"
+              class="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded transition-colors"
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="view-app" class="hidden-sys flex-1 flex flex-col min-h-screen pb-16 md:pb-0 h-full">
+      <!-- Sidebar Desktop -->
+      <aside
+        class="hidden md:flex flex-col w-[240px] bg-sys-sidebar text-white fixed h-full z-40 shrink-0"
+      >
+        <div
+          class="p-6 flex items-center text-xl font-bold tracking-tight border-b border-white/10 gap-[10px]"
+        >
+          <div class="w-8 h-8 bg-sys-accent rounded-md flex items-center justify-center"><i class="fa-solid fa-school text-white text-sm"></i></div> 
+          <span>EduAdmin Pro</span>
+        </div>
+        <nav
+          class="flex-1 py-4 flex flex-col overflow-y-auto"
+          id="nav-desktop"
+        >
+          <button
+            data-target="dash"
+            class="nav-btn w-full flex text-left items-center gap-3 px-6 py-3 text-[14px] text-white bg-white/5 border-l-4 border-sys-accent pl-[20px] transition-all"
+          >
+            Dashboard
+          </button>
+          <button
+            data-target="users"
+            class="nav-btn w-full flex text-left items-center gap-3 px-6 py-3 text-[14px] text-[#94a3b8] hover:text-white hover:bg-white/5 transition-all"
+          >
+            Students & Staff
+          </button>
+          <button
+            data-target="school"
+            class="nav-btn w-full flex text-left items-center gap-3 px-6 py-3 text-[14px] text-[#94a3b8] hover:text-white hover:bg-white/5 transition-all"
+          >
+            Classes & Units
+          </button>
+          <button
+            data-target="payments"
+            class="nav-btn w-full flex text-left items-center gap-3 px-6 py-3 text-[14px] text-[#94a3b8] hover:text-white hover:bg-white/5 transition-all"
+          >
+            Payment Portal
+          </button>
+          <button
+            data-target="reports"
+            class="nav-btn w-full flex text-left items-center gap-3 px-6 py-3 text-[14px] text-[#94a3b8] hover:text-white hover:bg-white/5 transition-all"
+          >
+            Reports & Analytics
+          </button>
+          <button
+            data-target="settings"
+            class="nav-btn w-full flex text-left items-center gap-3 px-6 py-3 text-[14px] text-[#94a3b8] hover:text-white hover:bg-white/5 transition-all"
+          >
+            System Settings
+          </button>
+        </nav>
+        <div class="p-[20px] text-[10px] text-sys-muted border-t border-white/10 flex justify-between items-center">
+          <span>Firebase: Connected</span>
+          <button id="btn-logout" class="text-red-400 hover:text-red-300 transition-colors"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+      </aside>
+
+      <!-- Navbar Mobile -->
+      <nav
+        class="md:hidden fixed bottom-0 w-full bg-slate-900 border-t border-slate-800 text-slate-400 flex justify-around p-2 z-40"
+        id="nav-mobile"
+      >
+        <button
+          data-target="dash"
+          class="nav-btn flex flex-col items-center p-2 text-white"
+        >
+          <i class="fa-solid fa-home text-lg"></i
+          ><span class="text-[10px] mt-1">Home</span>
+        </button>
+        <button
+          data-target="users"
+          class="nav-btn flex flex-col items-center p-2"
+        >
+          <i class="fa-solid fa-users text-lg"></i
+          ><span class="text-[10px] mt-1">Users</span>
+        </button>
+        <button
+          data-target="school"
+          class="nav-btn flex flex-col items-center p-2"
+        >
+          <i class="fa-solid fa-building text-lg"></i
+          ><span class="text-[10px] mt-1">School</span>
+        </button>
+        <button
+          data-target="payments"
+          class="nav-btn flex flex-col items-center p-2"
+        >
+          <i class="fa-solid fa-wallet text-lg"></i
+          ><span class="text-[10px] mt-1">Funds</span>
+        </button>
+        <button
+          data-target="more-menu"
+          class="flex flex-col items-center p-2"
+          onclick="
+            document
+              .getElementById('mobile-more')
+              .classList.toggle('hidden-sys')
+          "
+        >
+          <i class="fa-solid fa-bars text-lg"></i
+          ><span class="text-[10px] mt-1">More</span>
+        </button>
+      </nav>
+
+      <!-- Mobile More Menu -->
+      <div
+        id="mobile-more"
+        class="hidden-sys fixed bottom-16 right-2 bg-slate-800 text-white rounded-lg shadow-xl p-2 z-50 md:hidden flex flex-col gap-1 w-48"
+      >
+        <button
+          data-target="reports"
+          class="nav-btn text-left p-2 hover:bg-slate-700 rounded text-sm"
+        >
+          <i class="fa-solid fa-chart-bar w-5"></i> Reports
+        </button>
+        <button
+          data-target="settings"
+          class="nav-btn text-left p-2 hover:bg-slate-700 rounded text-sm"
+        >
+          <i class="fa-solid fa-gear w-5"></i> Settings
+        </button>
+        <hr class="border-slate-700 my-1" />
+        <button
+          onclick="document.getElementById('btn-logout').click()"
+          class="text-left p-2 hover:bg-slate-700 rounded text-sm text-red-400"
+        >
+          <i class="fa-solid fa-power-off w-5"></i> Logout
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <main class="flex-grow flex flex-col md:ml-[240px] h-full">
+        <header
+          class="h-[64px] bg-white border-b border-sys-border flex items-center justify-between px-8 sticky top-0 z-30"
+        >
+          <h2 id="view-title" class="text-[15px] font-semibold sm:hidden">Dashboard</h2>
+          <div class="hidden sm:block">
+            <input type="text" class="bg-[#f8fafc] border border-sys-border px-[16px] py-[8px] rounded-[8px] w-[300px] text-[13px] text-sys-muted outline-none focus:border-sys-accent" placeholder="Search students, teachers, or IDs...">
+          </div>
+          <div class="flex items-center gap-[12px]">
+            <div class="text-right hidden sm:block">
+              <div class="text-[13px] font-semibold" id="disp-email">Admin User</div>
+              <div class="text-[11px] text-sys-muted">Super Administrator</div>
+            </div>
+            <div class="w-[32px] h-[32px] rounded-full bg-[#cbd5e1]"></div>
+          </div>
+        </header>
+
+        <div class="p-[24px] sm:px-[32px] overflow-y-auto flex-grow flex flex-col gap-[24px]">
+          <!-- SECTION: Dashboard -->
+          <section id="sec-dash" class="app-sec fade-in flex flex-col gap-[24px]">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-[20px]">
+              <div class="bg-white p-[20px] rounded-[12px] border border-sys-border shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col">
+                <div class="text-[12px] uppercase tracking-[0.05em] text-sys-muted font-semibold mb-[8px]">Total Students</div>
+                <div class="text-[24px] font-bold text-sys-text" id="stat-stu">0</div>
+                <div class="text-[12px] mt-[4px] text-sys-success">↑ 12% this month</div>
+              </div>
+              <div class="bg-white p-[20px] rounded-[12px] border border-sys-border shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col">
+                <div class="text-[12px] uppercase tracking-[0.05em] text-sys-muted font-semibold mb-[8px]">Total Teachers</div>
+                <div class="text-[24px] font-bold text-sys-text" id="stat-tea">0</div>
+                <div class="text-[12px] mt-[4px] text-sys-text">Stable capacity</div>
+              </div>
+              <div class="bg-white p-[20px] rounded-[12px] border border-sys-border shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col">
+                <div class="text-[12px] uppercase tracking-[0.05em] text-sys-muted font-semibold mb-[8px]">Classes</div>
+                <div class="text-[24px] font-bold text-sys-text" id="stat-cls">0</div>
+                <div class="text-[12px] mt-[4px] text-sys-text">Across all grades</div>
+              </div>
+              <div class="bg-white p-[20px] rounded-[12px] border border-sys-border shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col">
+                <div class="text-[12px] uppercase tracking-[0.05em] text-sys-muted font-semibold mb-[8px]">Collection (MTD)</div>
+                <div class="text-[24px] font-bold text-sys-text" id="stat-fee">₹0</div>
+                <div class="text-[12px] mt-[4px] text-sys-success">↑ 4.2% vs target</div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-[24px] min-h-[0]">
+              <div class="lg:col-span-2 bg-white rounded-[12px] border border-sys-border flex flex-col overflow-hidden">
+                <div class="px-[20px] py-[16px] border-b border-sys-border flex justify-between items-center">
+                  <h3 class="font-semibold text-[15px]">Recent Payment Verifications</h3>
+                  <button class="px-[8px] py-[4px] border border-sys-border rounded-[4px] bg-white cursor-pointer text-[11px]">View All Transactions</button>
+                </div>
+                <div class="overflow-x-auto flex-grow">
+                  <table class="w-full text-[13px] text-left border-collapse">
+                    <thead>
+                      <tr>
+                        <th class="px-[20px] py-[12px] bg-[#f8fafc] text-sys-muted font-semibold border-b border-sys-border">UPI Ref</th>
+                        <th class="px-[20px] py-[12px] bg-[#f8fafc] text-sys-muted font-semibold border-b border-sys-border">Amount</th>
+                        <th class="px-[20px] py-[12px] bg-[#f8fafc] text-sys-muted font-semibold border-b border-sys-border">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="dash-payments-tbody"
+                    >
+                      <tr>
+                        <td colspan="3" class="text-center px-[20px] py-[12px] text-sys-border border-b border-sys-border">
+                          Loading...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-[12px] border border-sys-border flex flex-col overflow-hidden">
+                <div class="px-[20px] py-[16px] border-b border-sys-border flex justify-between items-center">
+                  <h3 class="font-semibold text-[15px]">System Control</h3>
+                </div>
+                <div class="flex flex-col items-center justify-center p-[24px] text-center flex-grow">
+                  <div
+                    id="dash-qr-div"
+                    class="w-[140px] h-[140px] bg-[#eee] border-2 border-dashed border-[#cbd5e1] rounded-[8px] flex items-center justify-center mb-[16px] overflow-hidden text-slate-400"
+                  >
+                    QR Code Space
+                  </div>
+                  <div class="text-[13px] font-medium">Official Merchant QR</div>
+                  <p class="text-[11px] text-sys-muted mt-[8px] mb-[16px]">
+                    Update this image in the Settings tab to change school's UPI scan point.
+                  </p>
+                  <div class="bg-[#1e293b] text-[#94a3b8] font-mono text-[10px] p-[12px] rounded-[6px] mt-auto overflow-hidden text-ellipsis w-full text-left break-all">
+                    const config = {<br>&nbsp;&nbsp;appId: "1:338346119..."<br>&nbsp;&nbsp;// active configuration<br>};
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SECTION: Users -->
+          <section id="sec-users" class="app-sec hidden-sys fade-in gap-[24px]">
+            <div
+              class="bg-white rounded-[12px] border border-sys-border overflow-hidden flex flex-col min-h-[500px]"
+            >
+              <div
+                class="px-[20px] py-[16px] border-b border-sys-border flex flex-col sm:flex-row justify-between items-center gap-4"
+              >
+                <div class="relative w-full sm:w-[300px]">
+                  <i
+                    class="fa-solid fa-search absolute left-[16px] top-1/2 -translate-y-1/2 text-sys-muted"
+                  ></i>
+                  <input
+                    type="text"
+                    id="user-search"
+                    placeholder="Search name or email..."
+                    class="w-full pl-[40px] pr-[16px] py-[8px] text-[13px] border border-sys-border rounded-[8px] bg-[#f8fafc] text-sys-muted outline-none focus:border-sys-accent"
+                  />
+                </div>
+                <button
+                  onclick="window.openUserModal()"
+                  class="w-full sm:w-auto bg-sys-accent text-white px-[16px] py-[8px] rounded-[8px] text-[13px] font-semibold hover:opacity-90 shadow-sm"
+                >
+                  <i class="fa-solid fa-plus"></i> Add User
+                </button>
+              </div>
+              <div class="overflow-x-auto flex-1">
+                <table class="w-full text-sm text-left">
+                  <thead
+                    class="bg-[#f8fafc] text-sys-muted text-[13px] font-semibold border-b border-sys-border"
+                  >
+                    <tr>
+                      <th class="px-[20px] py-[12px]">Name</th>
+                      <th class="px-[20px] py-[12px]">Contact</th>
+                      <th class="px-[20px] py-[12px]">Role & Class</th>
+                      <th class="px-[20px] py-[12px] text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="users-tbody"
+                    class="divide-y divide-slate-100"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- SECTION: School -->
+          <section
+            id="sec-school"
+            class="app-sec hidden-sys fade-in grid grid-cols-1 md:grid-cols-2 gap-[24px]"
+          >
+            <div class="bg-white rounded-[12px] border border-sys-border overflow-hidden">
+              <div
+                class="px-[20px] py-[16px] border-b border-sys-border flex justify-between items-center"
+              >
+                <h3 class="font-semibold text-[15px]">Classes</h3>
+                <button
+                  onclick="window.openClassModal()"
+                  class="bg-[#f1f5f9] text-[#1e293b] px-[12px] py-[6px] border border-[#e2e8f0] rounded-[6px] text-[12px] font-semibold hover:bg-[#e2e8f0]"
+                >
+                  Add Class
+                </button>
+              </div>
+              <div class="p-0">
+                <ul id="classes-list" class="divide-y divide-sys-border"></ul>
+              </div>
+            </div>
+            <div class="bg-white rounded-[12px] border border-sys-border overflow-hidden">
+              <div
+                class="px-[20px] py-[16px] border-b border-sys-border flex justify-between items-center"
+              >
+                <h3 class="font-semibold text-[15px]">Sections</h3>
+                <button
+                  onclick="window.openSectionModal()"
+                  class="bg-[#f1f5f9] text-[#1e293b] px-[12px] py-[6px] border border-[#e2e8f0] rounded-[6px] text-[12px] font-semibold hover:bg-[#e2e8f0]"
+                >
+                  Add Section
+                </button>
+              </div>
+              <div class="p-0">
+                <ul id="sections-list" class="divide-y divide-sys-border"></ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- SECTION: Payments -->
+          <section id="sec-payments" class="app-sec hidden-sys fade-in gap-[24px]">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-[24px]">
+              <div class="space-y-[24px]">
+                <div
+                  class="bg-white p-[24px] rounded-[12px] border border-sys-border"
+                >
+                  <h3 class="font-semibold text-[15px] mb-[16px]">Payment QR Setup</h3>
+                  <input
+                    type="file"
+                    id="qr-input"
+                    accept="image/*"
+                    class="w-full text-[13px] mb-[12px] text-sys-muted file:mr-4 file:py-2 file:px-4 file:rounded-[6px] file:border-0 file:text-[12px] file:font-semibold file:bg-[#f1f5f9] file:text-sys-text hover:file:bg-[#e2e8f0]"
+                    onchange="window.handleQRUpload(event)"
+                  />
+                  <div
+                    id="qr-preview-box"
+                    class="hidden-sys w-[140px] h-[140px] mx-auto border-2 border-dashed border-[#cbd5e1] rounded-[8px] object-contain flex items-center justify-center overflow-hidden"
+                  >
+                    <img
+                      id="settings-qr-img"
+                      class="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+                <div
+                  class="bg-white p-[24px] rounded-[12px] border border-sys-border"
+                >
+                  <h3 class="font-semibold text-[15px] mb-[16px]">Mock Payment (Test)</h3>
+                  <form id="form-mock-payment" class="space-y-[12px]">
+                    <input
+                      type="text"
+                      id="mock-upi"
+                      placeholder="UPI Reference (e.g., 234182...)"
+                      class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[8px] outline-none focus:border-sys-accent bg-[#f8fafc]"
+                      required
+                    />
+                    <input
+                      type="number"
+                      id="mock-amt"
+                      placeholder="Amount (₹)"
+                      class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[8px] outline-none focus:border-sys-accent bg-[#f8fafc]"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      class="w-full bg-[#0f172a] text-white py-[8px] text-[13px] rounded-[8px] font-semibold hover:bg-slate-800 transition-colors"
+                    >
+                      Submit Validation Request
+                    </button>
+                  </form>
+                </div>
+              </div>
+              <div
+                class="lg:col-span-2 bg-white rounded-[12px] border border-sys-border overflow-hidden flex flex-col"
+              >
+                <div
+                  class="px-[20px] py-[16px] border-b border-sys-border flex items-center justify-between"
+                >
+                  <h3 class="font-semibold text-[15px]">Payment Verification</h3>
+                  <span class="text-[12px] text-sys-muted font-medium" id="payments-count"
+                    >0 items</span
+                  >
+                </div>
+                <div class="overflow-x-auto flex-1">
+                  <table class="w-full text-[13px] text-left border-collapse">
+                  <thead
+                    class="bg-[#f8fafc] text-sys-muted text-[13px] font-semibold border-b border-sys-border"
+                  >
+                    <tr>
+                      <th class="px-[20px] py-[12px]">Date</th>
+                      <th class="px-[20px] py-[12px]">UPI Ref</th>
+                      <th class="px-[20px] py-[12px]">Amount</th>
+                      <th class="px-[20px] py-[12px]">Status</th>
+                      <th class="px-[20px] py-[12px] text-right">Action</th>
+                    </tr>
+                  </thead>
+                    <tbody
+                      id="pay-ver-tbody"
+                      class="divide-y divide-slate-100"
+                    ></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SECTION: Reports -->
+          <section id="sec-reports" class="app-sec hidden-sys fade-in gap-[24px]">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-[24px]">
+              <div
+                class="bg-white p-[24px] rounded-[12px] border border-sys-border flex flex-col justify-center items-center text-center shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
+              >
+                <i
+                  class="fa-solid fa-chart-line text-[40px] text-sys-accent/20 mb-[16px]"
+                ></i>
+                <h3 class="font-semibold text-[16px] text-sys-text">Performance Overview</h3>
+                <p class="text-[13px] text-sys-muted mt-[8px]">
+                  Average passing grade across all sections is currently
+                  <strong class="text-sys-success">84%</strong>. Student
+                  retention is stable.
+                </p>
+              </div>
+              <div
+                class="bg-white p-[24px] rounded-[12px] border border-sys-border flex flex-col justify-center items-center text-center shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
+              >
+                <i
+                  class="fa-solid fa-calendar-check text-[40px] text-sys-success/20 mb-[16px]"
+                ></i>
+                <h3 class="font-semibold text-[16px] text-sys-text">Monthly Attendance</h3>
+                <p class="text-[13px] text-sys-muted mt-[8px]">
+                  Overall total school attendance this month stands solidly at
+                  <strong class="text-sys-accent">92%</strong> average.
+                </p>
+              </div>
+            </div>
+            <div
+              class="bg-white rounded-[12px] border border-sys-border p-[24px] overflow-hidden"
+            >
+              <h3 class="font-semibold text-[15px] mb-[16px]">System Event Log (Mock)</h3>
+              <ul
+                class="text-[12px] space-y-[8px] text-sys-text font-mono bg-[#f8fafc] p-[16px] rounded-[8px] border border-sys-border"
+              >
+                <li>> System initialized completely.</li>
+                <li>> Real-time database synced successfully.</li>
+                <li>> Verification module actively monitoring.</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- SECTION: Settings -->
+          <section id="sec-settings" class="app-sec hidden-sys fade-in">
+            <div
+              class="bg-white p-[24px] rounded-[12px] border border-sys-border max-w-2xl shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
+            >
+              <h3 class="font-semibold text-[16px] mb-[24px] border-b border-sys-border pb-[8px]">
+                System Settings
+              </h3>
+              <div class="space-y-[24px]">
+                <div>
+                  <label class="block text-[13px] font-semibold mb-[8px] text-sys-text"
+                    >Authorized Admin Status</label
+                  >
+                  <p
+                    class="text-[13px] text-sys-muted bg-[#f8fafc] p-[12px] rounded-[6px] border border-sys-border"
+                  >
+                    Security explicitly bypasses unless matching whitelisted
+                    logic. Only authenticated owners can persist rules.
+                  </p>
+                </div>
+                <div>
+                  <label class="block text-[13px] font-semibold mb-[8px] text-sys-text"
+                    >Active Firebase Configuration</label
+                  >
+                  <div
+                    class="bg-[#0f172a] text-[#4ade80] p-[16px] rounded-[6px] overflow-x-auto text-[11px] sm:text-[12px] shadow-inner whitespace-pre font-mono"
+                  >
+                    const firebaseConfig = { apiKey:
+                    "AIzaSyDuXKWs6RwePwN1ua4pr-3l2yQ-3bi7lDs", authDomain:
+                    "school-project-e5efd.firebaseapp.com", databaseURL:
+                    "https://school-project-e5efd-default-rtdb.firebaseio.com",
+                    projectId: "school-project-e5efd", storageBucket:
+                    "school-project-e5efd.firebasestorage.app",
+                    messagingSenderId: "338346119381", appId:
+                    "1:338346119381:web:fc4c0ee79b6563f62c125c" };
+                  </div>
+                </div>
+                <div class="pt-4 border-t flex items-center justify-between">
+                  <div>
+                    <h4 class="font-bold text-sm">Experimental Dark Mode</h4>
+                    <p class="text-xs text-slate-500">
+                      Toggle UI theme preference
+                    </p>
+                  </div>
+                  <button
+                    onclick="document.body.classList.toggle('bg-slate-900')"
+                    class="w-12 h-6 bg-slate-200 rounded-full relative transition-colors"
+                    id="theme-toggle"
+                  >
+                    <div
+                      class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 shadow transition-transform"
+                    ></div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <div
+      id="modal-user"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden-sys flex justify-center items-center p-4"
+    >
+      <div
+        class="bg-white rounded-[12px] shadow-xl w-full max-w-md flex flex-col max-h-[90vh] border border-sys-border"
+      >
+        <div
+          class="px-[20px] py-[16px] border-b border-sys-border flex justify-between items-center shrink-0"
+        >
+          <h3 class="font-semibold text-[15px]" id="mod-u-title">Add User</h3>
+          <button
+            onclick="window.closeSysModal('modal-user')"
+            class="text-slate-400 hover:text-red-500"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-user" class="p-[20px] space-y-[16px] overflow-y-auto">
+          <input type="hidden" id="u-id" />
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]"
+              >Full Name</label
+            ><input
+              type="text"
+              id="u-name"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none focus:border-sys-accent"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]"
+              >Email</label
+            ><input
+              type="email"
+              id="u-email"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none focus:border-sys-accent"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]"
+              >Phone</label
+            ><input
+              type="text"
+              id="u-phone"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none focus:border-sys-accent"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]"
+              >Role</label
+            >
+            <select
+              id="u-role"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none bg-white focus:border-sys-accent"
+              onchange="
+                document
+                  .getElementById('u-class-div')
+                  .classList.toggle('hidden-sys', this.value !== 'Student')
+              "
+            >
+              <option value="Student">Student</option>
+              <option value="Teacher">Teacher</option>
+              <option value="Staff">Staff</option>
+            </select>
+          </div>
+          <div id="u-class-div">
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]"
+              >Assign Class</label
+            ><select
+              id="u-class"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none bg-white focus:border-sys-accent"
+            >
+              <option value="">-- Select Class --</option>
+            </select>
+          </div>
+          <div class="pt-2">
+            <button
+              type="submit"
+              class="w-full bg-sys-accent text-white py-[8px] text-[13px] rounded-[6px] font-semibold hover:opacity-90 transition-colors"
+            >
+              Save User Record
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="modal-class"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden-sys flex justify-center items-center p-4"
+    >
+      <div class="bg-white rounded-[12px] shadow-xl w-full max-w-sm border border-sys-border">
+        <div class="px-[20px] py-[16px] border-b border-sys-border flex justify-between items-center">
+          <h3 class="font-semibold text-[15px]">Add Class</h3>
+          <button
+            onclick="window.closeSysModal('modal-class')"
+            class="text-slate-400 hover:text-red-500"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-class" class="p-[20px] space-y-[16px]">
+          <input type="hidden" id="c-id" />
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]">Class Name</label
+            ><input
+              type="text"
+              id="c-name"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none focus:border-sys-accent"
+              placeholder="e.g., Class 10"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]">Assigned Teacher</label
+            ><select
+              id="c-teacher"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none bg-white focus:border-sys-accent"
+            >
+              <option value="">-- None --</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-sys-accent hover:opacity-90 text-white rounded-[6px] py-[8px] text-[13px] font-semibold transition-colors"
+          >
+            Save Class
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="modal-section"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden-sys flex justify-center items-center p-4"
+    >
+      <div class="bg-white rounded-[12px] shadow-xl w-full max-w-sm border border-sys-border">
+        <div class="px-[20px] py-[16px] border-b border-sys-border flex justify-between items-center">
+          <h3 class="font-semibold text-[15px]">Add Section</h3>
+          <button
+            onclick="window.closeSysModal('modal-section')"
+            class="text-slate-400 hover:text-red-500"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-section" class="p-[20px] space-y-[16px]">
+          <input type="hidden" id="s-id" />
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]">Section Name</label
+            ><input
+              type="text"
+              id="s-name"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none focus:border-sys-accent"
+              placeholder="e.g., Section A"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-[12px] font-semibold text-sys-text mb-[4px]">Parent Class</label
+            ><select
+              id="s-class"
+              class="w-full border border-sys-border px-[12px] py-[8px] text-[13px] rounded-[6px] outline-none bg-white focus:border-sys-accent"
+              required
+            >
+              <option value="">-- Select --</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-sys-accent hover:opacity-90 text-white rounded-[6px] py-[8px] text-[13px] font-semibold transition-colors"
+          >
+            Save Section
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Firebase Script Logic -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        doc,
+        setDoc,
+        updateDoc,
+        deleteDoc,
+        onSnapshot,
+        query,
+        orderBy,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDuXKWs6RwePwN1ua4pr-3l2yQ-3bi7lDs",
+        authDomain: "school-project-e5efd.firebaseapp.com",
+        databaseURL: "https://school-project-e5efd-default-rtdb.firebaseio.com",
+        projectId: "school-project-e5efd",
+        storageBucket: "school-project-e5efd.firebasestorage.app",
+        messagingSenderId: "338346119381",
+        appId: "1:338346119381:web:fc4c0ee79b6563f62c125c",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Security check
+      const ADMIN_EMAILS = [
+        "harshvardhantiwari39@gmail.com",
+        "admin@school.com",
+      ];
+      let dataCaches = { users: [], classes: [], sections: [], payments: [] };
+
+      // Globals for inline HTML
+      window.closeSysModal = (id) =>
+        document.getElementById(id).classList.add("hidden-sys");
+      window.openSysModal = (id) =>
+        document.getElementById(id).classList.remove("hidden-sys");
+      window.showLoader = () =>
+        document.getElementById("loader").classList.remove("hidden-sys");
+      window.hideLoader = () =>
+        document.getElementById("loader").classList.add("hidden-sys");
+      window.toast = (msg, type = "success") => {
+        const tc = document.getElementById("toast-container");
+        const t = document.createElement("div");
+        t.className = `p-3 rounded shadow-xl text-white text-sm font-medium flex items-center gap-2 transform transition-all ${type === "success" ? "bg-emerald-600" : "bg-red-600"}`;
+        t.innerHTML = `<i class="fa-solid fa-${type === "success" ? "check-circle" : "triangle-exclamation"}"></i> ${msg}`;
+        tc.appendChild(t);
+        setTimeout(() => {
+          t.style.opacity = "0";
+          setTimeout(() => t.remove(), 300);
+        }, 3000);
+      };
+
+      // Navigation engine
+      const switchSec = (target) => {
+        document
+          .querySelectorAll(".app-sec")
+          .forEach((s) => s.classList.add("hidden-sys"));
+        document.querySelectorAll(".nav-btn").forEach((b) => {
+          b.classList.remove("active-nav", "text-white");
+        });
+
+        const trg = document.getElementById(`sec-${target}`);
+        if (trg) trg.classList.remove("hidden-sys");
+
+        document
+          .querySelectorAll(`.nav-btn[data-target="${target}"]`)
+          .forEach((b) => {
+            b.classList.add("active-nav", "text-white");
+          });
+        const titles = {
+          dash: "Dashboard",
+          users: "User Management",
+          school: "School Modules",
+          payments: "Payment Control",
+          reports: "Reports & Logs",
+          settings: "System Config",
+        };
+        document.getElementById("view-title").innerText =
+          titles[target] || "Portal";
+        document.getElementById("mobile-more").classList.add("hidden-sys");
+      };
+
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const trg = e.currentTarget.dataset.target;
+          if (trg && trg !== "more-menu") switchSec(trg);
+        });
+      });
+
+      // Authentication
+      onAuthStateChanged(auth, (user) => {
+        window.hideLoader();
+        if (
+          user &&
+          (ADMIN_EMAILS.includes(user.email) || user.email.includes("admin"))
+        ) {
+          document.getElementById("view-login").classList.add("hidden-sys");
+          document.getElementById("view-app").classList.remove("hidden-sys");
+          document.getElementById("disp-email").innerText = user.email;
+          switchSec("dash");
+          initDataListeners();
+        } else {
+          if (user) signOut(auth); // force logout unauthorized
+          document.getElementById("view-app").classList.add("hidden-sys");
+          document.getElementById("view-login").classList.remove("hidden-sys");
+        }
+      });
+
+      document
+        .getElementById("form-login")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const em = document.getElementById("login-email").value;
+          const pw = document.getElementById("login-password").value;
+          if (!ADMIN_EMAILS.includes(em) && !em.includes("admin"))
+            return window.toast("Access denied. Admin only.", "error");
+          window.showLoader();
+          try {
+            await signInWithEmailAndPassword(auth, em, pw);
+          } catch (err) {
+            window.hideLoader();
+            window.toast(err.message, "error");
+          }
+        });
+
+      document
+        .getElementById("btn-logout")
+        .addEventListener("click", () => signOut(auth));
+
+      // Delete Helper
+      window.delDoc = async (colName, id) => {
+        if (!confirm("Delete this record permanently?")) return;
+        window.showLoader();
+        try {
+          await deleteDoc(doc(db, colName, id));
+          window.toast("Record deleted");
+        } catch (e) {
+          window.toast(e.message, "error");
+        }
+        window.hideLoader();
+      };
+
+      // Date formatter
+      const fmtDate = (ms) =>
+        new Date(ms).toLocaleDateString() +
+        " " +
+        new Date(ms).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+      // DATA LISTENERS
+      let listenersActive = false;
+      function initDataListeners() {
+        if (listenersActive) return;
+        listenersActive = true;
+
+        // Users
+        onSnapshot(
+          collection(db, "users"),
+          (snap) => {
+            dataCaches.users = snap.docs.map((d) => ({
+              id: d.id,
+              ...d.data(),
+            }));
+            renderUsers();
+            renderDashStats();
+            renderTeacherSelects();
+          },
+          (e) => console.error(e),
+        );
+
+        // Classes
+        onSnapshot(collection(db, "classes"), (snap) => {
+          dataCaches.classes = snap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          }));
+          renderClasses();
+          renderClassSelects();
+          renderDashStats();
+        });
+
+        // Sections
+        onSnapshot(collection(db, "sections"), (snap) => {
+          dataCaches.sections = snap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          }));
+          renderSections();
+        });
+
+        // Payments
+        onSnapshot(
+          query(collection(db, "payments"), orderBy("date", "desc")),
+          (snap) => {
+            dataCaches.payments = snap.docs.map((d) => ({
+              id: d.id,
+              ...d.data(),
+            }));
+            renderPayments();
+            renderDashStats();
+          },
+        );
+
+        // Settings
+        onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+          if (docSnap.exists()) {
+            const dat = docSnap.data();
+            if (dat.qrCodeBase64) {
+              const img = document.getElementById("settings-qr-img");
+              img.src = dat.qrCodeBase64;
+              document
+                .getElementById("qr-preview-box")
+                .classList.remove("hidden-sys");
+              document.getElementById("dash-qr-div").innerHTML =
+                `<img src="${dat.qrCodeBase64}" class="w-full h-full object-contain">`;
+            }
+          }
+        });
+      }
+
+      // --- DASHBOARD RENDER ---
+      function renderDashStats() {
+        const stu = dataCaches.users.filter((u) => u.role === "Student").length;
+        const tea = dataCaches.users.filter((u) => u.role === "Teacher").length;
+        const stf = dataCaches.users.filter((u) => u.role === "Staff").length;
+        const fee = dataCaches.payments
+          .filter((p) => p.status === "approved")
+          .reduce((a, b) => a + Number(b.amount || 0), 0);
+
+        document.getElementById("stat-stu").innerText = stu;
+        document.getElementById("stat-tea").innerText = tea;
+        document.getElementById("stat-cls").innerText =
+          dataCaches.classes.length;
+        document.getElementById("stat-fee").innerText =
+          "₹" + fee.toLocaleString();
+      }
+
+      // --- USERS ---
+      window.openUserModal = (id = null) => {
+        const frm = document.getElementById("form-user");
+        frm.reset();
+        document.getElementById("u-id").value = "";
+        document.getElementById("mod-u-title").innerText = "Add User";
+        document.getElementById("u-class-div").classList.remove("hidden-sys");
+        if (id) {
+          const u = dataCaches.users.find((x) => x.id === id);
+          if (u) {
+            document.getElementById("u-id").value = u.id;
+            document.getElementById("u-name").value = u.name || "";
+            document.getElementById("u-email").value = u.email || "";
+            document.getElementById("u-phone").value = u.phone || "";
+            document.getElementById("u-role").value = u.role || "Student";
+            document.getElementById("u-class").value = u.classId || "";
+            document
+              .getElementById("u-class-div")
+              .classList.toggle("hidden-sys", u.role !== "Student");
+            document.getElementById("mod-u-title").innerText = "Edit User";
+          }
+        }
+        window.openSysModal("modal-user");
+      };
+
+      document
+        .getElementById("form-user")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const id = document.getElementById("u-id").value;
+          const data = {
+            name: document.getElementById("u-name").value,
+            email: document.getElementById("u-email").value,
+            phone: document.getElementById("u-phone").value,
+            role: document.getElementById("u-role").value,
+            classId:
+              document.getElementById("u-role").value === "Student"
+                ? document.getElementById("u-class").value || ""
+                : "",
+          };
+          window.showLoader();
+          try {
+            if (id) await updateDoc(doc(db, "users", id), data);
+            else await addDoc(collection(db, "users"), data);
+            window.toast("User saved!");
+            window.closeSysModal("modal-user");
+          } catch (err) {
+            window.toast(err.message, "error");
+          }
+          window.hideLoader();
+        });
+
+      document
+        .getElementById("user-search")
+        .addEventListener("input", renderUsers);
+
+      function renderUsers() {
+        const term = document.getElementById("user-search").value.toLowerCase();
+        const tb = document.getElementById("users-tbody");
+        const list = dataCaches.users.filter(
+          (u) =>
+            (u.name || "").toLowerCase().includes(term) ||
+            (u.email || "").toLowerCase().includes(term),
+        );
+
+        tb.innerHTML =
+          list
+            .map(
+              (u) => `
+                <tr class="hover:bg-[#f8fafc] transition-colors border-b border-sys-border">
+                    <td class="px-[20px] py-[12px]"><div class="font-medium text-[13px] text-sys-text">${u.name || "-"}</div><div class="text-[11px] text-sys-muted">ID: ${u.id.substring(0, 6)}</div></td>
+                    <td class="px-[20px] py-[12px] text-[13px]"><div class="text-sys-muted"><i class="fa-regular fa-envelope w-4"></i> ${u.email || "-"}</div><div class="text-sys-muted mt-0.5"><i class="fa-solid fa-phone w-4"></i> ${u.phone || "-"}</div></td>
+                    <td class="px-[20px] py-[12px]"><span class="px-[8px] py-[2px] bg-[#f1f5f9] border border-sys-border text-[11px] font-bold rounded-[4px]">${u.role || "N/A"}</span></td>
+                    <td class="px-[20px] py-[12px] text-right">
+                        <button onclick="window.openUserModal('${u.id}')" class="w-8 h-8 rounded hover:bg-[#e0f2fe] text-sys-accent transition-colors"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="window.delDoc('users', '${u.id}')" class="w-8 h-8 rounded hover:bg-red-50 text-red-500 transition-colors"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `,
+            )
+            .join("") ||
+          `<tr><td colspan="4" class="text-center py-8 text-sys-muted border-b border-sys-border">No records found.</td></tr>`;
+      }
+
+      // --- SCHOOL ---
+      window.openClassModal = () => {
+        document.getElementById("form-class").reset();
+        document.getElementById("c-id").value = "";
+        window.openSysModal("modal-class");
+      };
+      window.openSectionModal = () => {
+        document.getElementById("form-section").reset();
+        document.getElementById("s-id").value = "";
+        window.openSysModal("modal-section");
+      };
+
+      document
+        .getElementById("form-class")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const id = document.getElementById("c-id").value;
+          const data = {
+            name: document.getElementById("c-name").value,
+            teacherId: document.getElementById("c-teacher").value,
+          };
+          window.showLoader();
+          try {
+            if (id) await updateDoc(doc(db, "classes", id), data);
+            else await addDoc(collection(db, "classes"), data);
+            window.toast("Class saved");
+            window.closeSysModal("modal-class");
+          } catch (err) {
+            window.toast(err.message, "error");
+          }
+          window.hideLoader();
+        });
+
+      document
+        .getElementById("form-section")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const id = document.getElementById("s-id").value;
+          const data = {
+            name: document.getElementById("s-name").value,
+            classId: document.getElementById("s-class").value,
+          };
+          window.showLoader();
+          try {
+            if (id) await updateDoc(doc(db, "sections", id), data);
+            else await addDoc(collection(db, "sections"), data);
+            window.toast("Section saved");
+            window.closeSysModal("modal-section");
+          } catch (err) {
+            window.toast(err.message, "error");
+          }
+          window.hideLoader();
+        });
+
+      function renderClasses() {
+        const ul = document.getElementById("classes-list");
+        ul.innerHTML =
+          dataCaches.classes
+            .map((c) => {
+              const t = dataCaches.users.find((u) => u.id === c.teacherId);
+              return `<li class="flex justify-between items-center px-[20px] py-[16px] hover:bg-[#f8fafc] group transition-colors">
+                    <div><p class="font-semibold text-[13px] text-sys-text">${c.name || "?"}</p><p class="text-[11px] text-sys-muted uppercase mt-1">Class Teacher: ${t ? t.name : "None"}</p></div>
+                    <button onclick="window.delDoc('classes','${c.id}')" class="text-slate-400 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all text-[13px]"><i class="fa-solid fa-trash"></i></button>
+                    </li>`;
+            })
+            .join("") ||
+          `<li class="p-[20px] text-center text-[13px] text-sys-muted border-sys-border">No classes configured</li>`;
+      }
+      function renderSections() {
+        const ul = document.getElementById("sections-list");
+        ul.innerHTML =
+          dataCaches.sections
+            .map((s) => {
+              const c = dataCaches.classes.find((x) => x.id === s.classId);
+              return `<li class="flex justify-between items-center px-[20px] py-[16px] hover:bg-[#f8fafc] group transition-colors">
+                    <div><p class="font-semibold text-[13px] text-sys-text">${s.name || "?"}</p><p class="text-[11px] text-sys-muted mt-1">Belongs to: <span class="font-semibold text-sys-accent">${c ? c.name : "Unknown"}</span></p></div>
+                    <button onclick="window.delDoc('sections','${s.id}')" class="text-slate-400 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all text-[13px]"><i class="fa-solid fa-trash"></i></button>
+                    </li>`;
+            })
+            .join("") ||
+          `<li class="p-[20px] text-center text-[13px] text-sys-muted border-sys-border">No sections added</li>`;
+      }
+      function renderClassSelects() {
+        const opts =
+          '<option value="">-- Assign Class --</option>' +
+          dataCaches.classes
+            .map((c) => `<option value="${c.id}">${c.name}</option>`)
+            .join("");
+        document.getElementById("u-class").innerHTML = opts;
+        document.getElementById("s-class").innerHTML = opts;
+      }
+      function renderTeacherSelects() {
+        const opts =
+          '<option value="">-- Select Teacher --</option>' +
+          dataCaches.users
+            .filter((u) => u.role === "Teacher")
+            .map(
+              (c) => `<option value="${c.id}">${c.name} (${c.email})</option>`,
+            )
+            .join("");
+        document.getElementById("c-teacher").innerHTML = opts;
+      }
+
+      // --- PAYMENTS ---
+      window.handleQRUpload = (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const rd = new FileReader();
+        rd.onload = async (ev) => {
+          window.showLoader();
+          try {
+            await setDoc(
+              doc(db, "settings", "global"),
+              { qrCodeBase64: ev.target.result },
+              { merge: true },
+            );
+            window.toast("QR Updated");
+          } catch (err) {
+            window.toast("DB Error: " + err.message, "error");
+          }
+          window.hideLoader();
+        };
+        rd.readAsDataURL(f);
+      };
+
+      document
+        .getElementById("form-mock-payment")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          window.showLoader();
+          try {
+            await addDoc(collection(db, "payments"), {
+              upiRef: document.getElementById("mock-upi").value,
+              amount: document.getElementById("mock-amt").value,
+              status: "pending",
+              date: Date.now(),
+            });
+            window.toast("Validation request submitted");
+            e.target.reset();
+          } catch (err) {
+            window.toast(err.message, "error");
+          }
+          window.hideLoader();
+        });
+
+      window.setPayStatus = async (id, st) => {
+        window.showLoader();
+        try {
+          await updateDoc(doc(db, "payments", id), { status: st });
+          window.toast("Status applied");
+        } catch (err) {
+          window.toast(err.message, "error");
+        }
+        window.hideLoader();
+      };
+
+      function renderPayments() {
+        const getStatusBadge = (st) => {
+          const map = {
+            pending: "bg-[#fef3c7] text-[#92400e]",
+            approved: "bg-[#dcfce7] text-[#166534]",
+            rejected: "bg-red-100 text-red-700",
+          };
+          return `<span class="px-[10px] py-[4px] rounded-[20px] text-[11px] font-semibold inline-block ${map[st] || "bg-slate-100"}">${st}</span>`;
+        };
+
+        // Full table
+        const tb = document.getElementById("pay-ver-tbody");
+        document.getElementById("payments-count").innerText =
+          dataCaches.payments.length + " entries";
+        tb.innerHTML =
+          dataCaches.payments
+            .map(
+              (p) => `
+                <tr class="hover:bg-[#f8fafc] transition-colors border-b border-sys-border">
+                    <td class="px-[20px] py-[12px] text-[13px] text-sys-muted">${fmtDate(p.date)}</td>
+                    <td class="px-[20px] py-[12px] font-mono text-[13px] font-bold text-sys-text">${p.upiRef}</td>
+                    <td class="px-[20px] py-[12px] font-medium text-[13px]">₹${Number(p.amount || 0).toLocaleString()}</td>
+                    <td class="px-[20px] py-[12px]">${getStatusBadge(p.status)}</td>
+                    <td class="px-[20px] py-[12px] text-right">
+                        ${
+                          p.status === "pending"
+                            ? `
+                            <button onclick="window.setPayStatus('${p.id}','approved')" class="bg-sys-success text-white text-[10px] px-2 py-1 rounded font-bold hover:opacity-90 mr-1">APPROVE</button>
+                            <button onclick="window.setPayStatus('${p.id}','rejected')" class="bg-slate-200 text-sys-text text-[10px] px-2 py-1 rounded font-bold hover:bg-slate-300">REJECT</button>
+                        `
+                            : `<button onclick="window.delDoc('payments','${p.id}')" class="text-slate-400 hover:text-red-500 text-[13px]"><i class="fa-solid fa-trash"></i></button>`
+                        }
+                    </td>
+                </tr>
+            `,
+            )
+            .join("") ||
+          `<tr><td colspan="5" class="text-center py-6 text-slate-400">No payment records found.</td></tr>`;
+
+        // Dash table (mini)
+        document.getElementById("dash-payments-tbody").innerHTML =
+          dataCaches.payments
+            .slice(0, 5)
+            .map(
+              (p) => `
+                <tr class="hover:bg-[#f8fafc]"><td class="px-[20px] py-[12px] border-b border-sys-border">#UPI-${p.upiRef.substring(0, 8)}</td><td class="px-[20px] py-[12px] border-b border-sys-border">₹${p.amount}</td><td class="px-[20px] py-[12px] border-b border-sys-border">${getStatusBadge(p.status)}</td></tr>
+            `,
+            )
+            .join("") ||
+          `<tr><td colspan="3" class="text-center px-[20px] py-[12px] border-b border-sys-border text-sys-muted">No recent activity</td></tr>`;
+      }
+    </script>
+  </body>
+</html>
